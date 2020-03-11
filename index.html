@@ -11,9 +11,12 @@
             color: #fff;
         }
 
-        #area {
+        #minimizedOnes {
             position: relative;
             width: 100%;
+            height: 50px;
+            background-color: #ff0000;
+            bottom: 0;
         }
     </style>
 </head>
@@ -21,19 +24,26 @@
     
     <button onclick="createNewDiv()"> Create New Draggable DIV</button>
 
+    <div id="minimizedOnes"></div>
+
     <script>
         let i = 0,
             z = 0,
             pressed = false,
             shiftX = 0,
             shiftY = 0,
-            elm = null;
+            elm = null,
+            elmToHide = null,
+            openElements = [],
+            minimizedElements = [],
+            bottomPositions = {};
 
         
         function createNewDiv(){
             let p = 'p' + i,
             divHead = 'divHead' + i,
-            button = 'button' + i,
+            buttonClose = 'button' + i,
+            buttonMin = 'min' + i;
             div = 'div' + i,
             x = Math.floor(Math.random()*(innerWidth - 200)),
             y = Math.floor(Math.random()*(innerHeight - 75));
@@ -46,15 +56,21 @@
             divHead.id = `innerDiv${i}`;
             divHead.className = 'innerDiv';
 
-            button = document.createElement('button');
-            button.id = `button${i}`;
-            button.className = 'button';
+            buttonClose = document.createElement('button');
+            buttonClose.id = `button${i}`;
+            buttonClose.className = 'button';
+
+            buttonMin = document.createElement('button');
+            buttonMin.id = `buttonMin${i}`;
+            buttonMin.className = 'buttonMin';
 
             div = document.createElement('div');
             div.id = `div${i}`;
             div.className = 'removableDiv';
 
-            divHead.appendChild(button);
+            divHead.appendChild(buttonClose);
+            divHead.appendChild(buttonMin);
+
             div.appendChild(divHead);
 
             div.appendChild(p);
@@ -67,14 +83,21 @@
             document.getElementById(`innerDiv${i}`).style.userSelect = 'none';
 
             document.getElementById(`button${i}`).style.position = 'absolute';
-            document.getElementById(`button${i}`).style.right= 10 +'px';
+            document.getElementById(`button${i}`).style.right= 30 +'px';
+            document.getElementById(`buttonMin${i}`).style.position = 'absolute';
+            document.getElementById(`buttonMin${i}`).style.right= 10 +'px';
 
             document.getElementById(`p${i}`).innerHTML = `I am movable div #${i}`;
             document.getElementById(`button${i}`).innerHTML = '&times';
             document.getElementById(`button${i}`).style.userSelect = 'none';
 
+            document.getElementById(`buttonMin${i}`).innerHTML = '&lowbar;';
+            document.getElementById(`buttonMin${i}`).style.userSelect = 'none';
+
             document.getElementById(`div${i}`).style.position = 'absolute';
             document.getElementById(`p${i}`).style.userSelect = 'none';
+
+            document.getElementById(`div${i}`).setAttribute('index', i);
 
             document.getElementById(`div${i}`).style.top = y + 'px';
             document.getElementById(`div${i}`).style.left = x + 'px';
@@ -82,11 +105,8 @@
             document.getElementById(`div${i}`).style.borderRadius = 10 + 'px';
             document.getElementById(`div${i}`).style.width = 200 + 'px';
 
+            openElements.push(document.getElementById(`div${i}`));
             i++;
-        }
-
-        function click(e){
-            e.parentNode.parentNode.remove();
         }
 
         function down(e){
@@ -106,7 +126,9 @@
         document.addEventListener('mousedown', function(){
             switch(event.target.className){
                 case 'button':
+                    elm = event.target.parentNode.parentNode; 
                     event.target.parentNode.parentNode.remove();
+                    removeFromOpen(elm, false);
                     break;
                 case 'removableDiv':
                     z++
@@ -120,8 +142,27 @@
                     elm = event.target.parentNode; 
                     down(event.target.parentNode);
                     break;
+                case 'buttonMin':
+                    elmToHide = event.target.parentNode.parentNode;
+                    removeFromOpen(elmToHide, true);
+                    console.log(event.target.parentNode.parentNode.getAttribute('index'));
+                    break;
             }
         });
+
+        function removeFromOpen(e, boolean) {
+            for(let i = 0; i < openElements.length; i++){
+                if (openElements[i] === elm){
+                    console.log(i)
+                    openElements.splice(i, 1);
+                }
+            }
+            e.style.display = 'none';
+            if(boolean){
+                minimizedElements.push(e);
+                console.log(minimizedElements)
+            }
+        }
 
         document.addEventListener('mousemove', function(){
             if (pressed){
