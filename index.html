@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Draggable DIV</title>
+    <style>
+        body{
+            background-color: #000000;
+            color: #fff;
+        }
+
+        #area {
+            position: relative;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    
+    <button onclick="createNewDiv()"> Create New Draggable DIV</button>
+
+    <script>
+        let i = 0,
+            z = 0,
+            pressed = false,
+            shiftX = 0,
+            shiftY = 0,
+            elm = null;
+
+        
+        function createNewDiv(){
+            let p = 'p' + i,
+            divHead = 'divHead' + i,
+            button = 'button' + i,
+            div = 'div' + i,
+            x = Math.floor(Math.random()*(innerWidth - 200)),
+            y = Math.floor(Math.random()*(innerHeight - 75));
+
+            p = document.createElement('p');
+            p.id = `p${i}`;
+            p.className = 'text'
+
+            divHead = document.createElement('div');
+            divHead.id = `innerDiv${i}`;
+            divHead.className = 'innerDiv';
+
+            button = document.createElement('button');
+            button.id = `button${i}`;
+            button.className = 'button';
+
+            div = document.createElement('div');
+            div.id = `div${i}`;
+            div.className = 'removableDiv';
+
+            divHead.appendChild(button);
+            div.appendChild(divHead);
+
+            div.appendChild(p);
+            document.body.appendChild(div);
+
+            document.getElementById(`innerDiv${i}`).style.backgroundColor = '#ff1562';
+            document.getElementById(`innerDiv${i}`).style.padding = 10 + 'px';
+            document.getElementById(`innerDiv${i}`).style.display = 'flex';
+            document.getElementById(`innerDiv${i}`).style.position = 'relative';
+            document.getElementById(`innerDiv${i}`).style.userSelect = 'none';
+
+            document.getElementById(`button${i}`).style.position = 'absolute';
+            document.getElementById(`button${i}`).style.right= 10 +'px';
+
+            document.getElementById(`p${i}`).innerHTML = `I am movable div #${i}`;
+            document.getElementById(`button${i}`).innerHTML = '&times';
+            document.getElementById(`button${i}`).style.userSelect = 'none';
+
+            document.getElementById(`div${i}`).style.position = 'absolute';
+            document.getElementById(`p${i}`).style.userSelect = 'none';
+
+            document.getElementById(`div${i}`).style.top = y + 'px';
+            document.getElementById(`div${i}`).style.left = x + 'px';
+            document.getElementById(`div${i}`).style.backgroundColor = '#1562ff';
+            document.getElementById(`div${i}`).style.borderRadius = 10 + 'px';
+            document.getElementById(`div${i}`).style.width = 200 + 'px';
+
+            i++;
+        }
+
+        function click(e){
+            e.parentNode.parentNode.remove();
+        }
+
+        function down(e){
+            shiftX = event.clientX - e.getBoundingClientRect().left;
+            shiftY = event.clientY - e.getBoundingClientRect().top;
+            pressed = true;
+            e.style.zIndex = z;
+            z++;
+        }
+
+        function move(e, x, y){
+                e.style.top = y - shiftY + 'px';
+                e.style.left = x - shiftX + 'px';
+        }
+
+
+        document.addEventListener('mousedown', function(){
+            switch(event.target.className){
+                case 'button':
+                    event.target.parentNode.parentNode.remove();
+                    break;
+                case 'removableDiv':
+                    z++
+                    event.target.style.zIndex = z;
+                    break;
+                case 'text':
+                    z++
+                    event.target.parentNode.style.zIndex = z;
+                    break;
+                case 'innerDiv':
+                    elm = event.target.parentNode; 
+                    down(event.target.parentNode);
+                    break;
+            }
+        });
+
+        document.addEventListener('mousemove', function(){
+            if (pressed){
+                move(elm, event.clientX, event.clientY)
+            }
+        })
+
+        document.addEventListener('mouseup', function(){
+            pressed = false;
+        })
+
+    </script>
+</body>
+</html>
