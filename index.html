@@ -12,45 +12,49 @@
         }
 
         #minimizedOnes {
-            position: relative;
-            width: 100%;
-            height: 50px;
-            background-color: #ff0000;
+            position: fixed;
+            padding: 0;
+            background-color: #abff95;
             bottom: 0;
+            height: 50px;
+            display: flex;
         }
     </style>
 </head>
 <body>
     
-    <button onclick="createNewDiv()"> Create New Draggable DIV</button>
+    <button onclick="createNewDiv('p')">Text</button>
+    <button onclick="createNewDiv('video')">Video</button>
+    <button onclick="createNewDiv('image')">Image</button>
+    <button onclick="createNewDiv('website')">Website</button>
 
     <div id="minimizedOnes"></div>
 
     <script>
         let i = 0,
-            z = 0,
+            z = 1,
             pressed = false,
             shiftX = 0,
             shiftY = 0,
             elm = null,
             elmToHide = null,
-            openElements = [],
-            minimizedElements = [],
-            bottomPositions = {};
+            iframe = null,
+            openPositions = [];
 
-        
-        function createNewDiv(){
-            let p = 'p' + i,
-            divHead = 'divHead' + i,
+            document.body.style.height = innerHeight + 'px';
+            document.getElementById('minimizedOnes').style.width = innerWidth + 'px';
+
+        function createNewDiv(inside){
+            let divHead = 'divHead' + i,
             buttonClose = 'button' + i,
             buttonMin = 'min' + i;
             div = 'div' + i,
-            x = Math.floor(Math.random()*(innerWidth - 200)),
-            y = Math.floor(Math.random()*(innerHeight - 75));
-
-            p = document.createElement('p');
-            p.id = `p${i}`;
-            p.className = 'text'
+            openPosition = {},
+            openPosition.x = Math.floor(Math.random()*(innerWidth - 200)),
+            openPosition.y = Math.floor(Math.random()*(innerHeight - 175)) + 50,
+            openPosition.index = i;
+        
+            openPositions.push(openPosition);
 
             divHead = document.createElement('div');
             divHead.id = `innerDiv${i}`;
@@ -72,8 +76,46 @@
             divHead.appendChild(buttonMin);
 
             div.appendChild(divHead);
+           
+           
+            switch(inside){
+                case 'p':
+                    let p = 'p' + i;
+                    p = document.createElement('p');
+                    p.id = `p${i}`;
+                    p.className = 'text'
+                    div.appendChild(p);
+                    break;
+                case 'image':
+                    let img = 'img' + i;
+                    img = document.createElement('img');
+                    img.src = 'https://images.discordapp.net/avatars/667397272107089982/3dfe6ead6f9b556b79aabf73ebb0db52.png?size=512';
+                    img.width = '200';
+                    img.height = '200';
+                    img.className = 'img';
+                    div.appendChild(img);
+                    break;
+                case 'video':
+                    iframe = 'iframe' + i;
+                    iframe = document.createElement('iframe');
+                    iframe.name = 'iframe' + i;
+                    iframe.width = '200';
+                    iframe.height = '113';
+                    iframe.src = 'https://www.youtube.com/embed/TfRhPkkL6v0';
+                    iframe.allow = 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture';
+                    div.appendChild(iframe);
+                    break;
+                case 'website':
+                    iframe = 'iframe' + i;
+                    iframe = document.createElement('iframe');
+                    iframe.name = 'iframe' + i;
+                    iframe.width = '200';
+                    iframe.height = '113';
+                    iframe.src = 'https://www.w3schools.com';
+                    div.appendChild(iframe);
+                    break;
+            }
 
-            div.appendChild(p);
             document.body.appendChild(div);
 
             document.getElementById(`innerDiv${i}`).style.backgroundColor = '#ff1562';
@@ -83,11 +125,10 @@
             document.getElementById(`innerDiv${i}`).style.userSelect = 'none';
 
             document.getElementById(`button${i}`).style.position = 'absolute';
-            document.getElementById(`button${i}`).style.right= 30 +'px';
+            document.getElementById(`button${i}`).style.right= 10 +'px';
             document.getElementById(`buttonMin${i}`).style.position = 'absolute';
-            document.getElementById(`buttonMin${i}`).style.right= 10 +'px';
+            document.getElementById(`buttonMin${i}`).style.right= 30 +'px';
 
-            document.getElementById(`p${i}`).innerHTML = `I am movable div #${i}`;
             document.getElementById(`button${i}`).innerHTML = '&times';
             document.getElementById(`button${i}`).style.userSelect = 'none';
 
@@ -95,17 +136,24 @@
             document.getElementById(`buttonMin${i}`).style.userSelect = 'none';
 
             document.getElementById(`div${i}`).style.position = 'absolute';
-            document.getElementById(`p${i}`).style.userSelect = 'none';
 
             document.getElementById(`div${i}`).setAttribute('index', i);
 
-            document.getElementById(`div${i}`).style.top = y + 'px';
-            document.getElementById(`div${i}`).style.left = x + 'px';
+            document.getElementById(`div${i}`).style.top = openPositions[i].y + 'px';
+            document.getElementById(`div${i}`).style.left = openPositions[i].x + 'px';
+
+
             document.getElementById(`div${i}`).style.backgroundColor = '#1562ff';
             document.getElementById(`div${i}`).style.borderRadius = 10 + 'px';
             document.getElementById(`div${i}`).style.width = 200 + 'px';
 
-            openElements.push(document.getElementById(`div${i}`));
+
+            if(inside === 'p'){
+                document.getElementById(`p${i}`).innerHTML = `I am movable div #${i}`;
+                document.getElementById(`p${i}`).style.userSelect = 'none';
+            }
+
+            openPositions[i].item = document.getElementById(`div${i}`);
             i++;
         }
 
@@ -124,45 +172,76 @@
 
 
         document.addEventListener('mousedown', function(){
-            switch(event.target.className){
-                case 'button':
-                    elm = event.target.parentNode.parentNode; 
-                    event.target.parentNode.parentNode.remove();
-                    removeFromOpen(elm, false);
-                    break;
-                case 'removableDiv':
-                    z++
-                    event.target.style.zIndex = z;
-                    break;
-                case 'text':
-                    z++
-                    event.target.parentNode.style.zIndex = z;
-                    break;
-                case 'innerDiv':
-                    elm = event.target.parentNode; 
-                    down(event.target.parentNode);
-                    break;
-                case 'buttonMin':
-                    elmToHide = event.target.parentNode.parentNode;
-                    removeFromOpen(elmToHide, true);
-                    console.log(event.target.parentNode.parentNode.getAttribute('index'));
-                    break;
+            if(event.button === 0){
+                switch(event.target.className){
+                    case 'button':
+                        elm = event.target.parentNode.parentNode; 
+                        event.target.parentNode.parentNode.remove();
+                        break;
+                    case 'removableDiv':
+                        z++
+                        event.target.style.zIndex = z;
+                        break;
+                    case 'text':
+                        z++
+                        event.target.parentNode.style.zIndex = z;
+                        break;
+                    case 'innerDiv':
+                        elm = event.target.parentNode; 
+                        down(elm);
+                        break;
+                    case 'buttonMin':
+                        elmToHide = event.target.parentNode.parentNode;
+                        addMinimize(event.target.parentNode.parentNode.getAttribute('index'));
+                        minimizedIcon(event.target.parentNode.parentNode.getAttribute('index'));
+                        break;
+                    case 'minimized':
+                        maximize(event.target.getAttribute('index'));
+                        break;
+                }
             }
         });
 
-        function removeFromOpen(e, boolean) {
-            for(let i = 0; i < openElements.length; i++){
-                if (openElements[i] === elm){
-                    console.log(i)
-                    openElements.splice(i, 1);
+        function minimizedIcon(index) {
+            for(let i = 0; i < openPositions.length; i++){
+                if(openPositions[i].item.getAttribute('index') === index){
+                    openPositions[i].minimizedElm.style.display = 'block';
+                    openPositions[i].item.style.display = 'none';
                 }
             }
-            e.style.display = 'none';
-            if(boolean){
-                minimizedElements.push(e);
-                console.log(minimizedElements)
+        };
+
+
+        function addMinimize(i){
+            let divMin = 'div' + i;
+            divMin = document.createElement('div');
+            divMin.id = `minimized${i}`; 
+            divMin.className = `minimized`; 
+            document.getElementById('minimizedOnes').appendChild(divMin);
+            document.getElementById(`minimized${i}`).innerHTML = i;
+            document.getElementById(`minimized${i}`).style.backgroundColor = '#4fc3f7';
+            document.getElementById(`minimized${i}`).style.width = '50px';
+            document.getElementById(`minimized${i}`).style.height = '50px';
+            document.getElementById(`minimized${i}`).style.borderWidth = '1px';
+            document.getElementById(`minimized${i}`).style.borderStyle = 'solid';
+            document.getElementById(`minimized${i}`).style.borderColor = 'blue';
+            document.getElementById(`minimized${i}`).style.display = 'none';
+            document.getElementById(`minimized${i}`).setAttribute('index', i);
+            document.getElementById(`minimized${i}`).style.userSelect = 'none';
+            openPositions[i].minimizedElm = document.getElementById(`minimized${i}`);
+        }
+
+        function maximize(index) {
+            for(let i = 0; i < openPositions.length; i++){
+                if(openPositions[i].item.getAttribute('index') === index){
+                    openPositions[i].minimizedElm.style.display = 'none';
+                    openPositions[i].item.style.display = 'block';
+                    z++;
+                    openPositions[i].item.style.zIndex = z;
+                }
             }
         }
+
 
         document.addEventListener('mousemove', function(){
             if (pressed){
