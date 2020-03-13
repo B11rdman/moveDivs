@@ -31,14 +31,15 @@
             height: 40px;
             width: 55px;
             background-size: 100%;
+            cursor: pointer;
         }
 
         #minimizeAll {
-            width: 20px;
             background-color: rgba(255, 255, 255, 0.61);
             position: absolute;
             right: 0;
             height: 40px;
+            cursor: pointer;
         }
 
         .topButton {
@@ -53,9 +54,29 @@
             transition: 0.4s;
         }
 
+        .button, .buttonMin {
+            background-color: #2158d6; 
+            border: 1px solid white;
+            color: white;
+            line-height: 1;
+            padding: 2px 2px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            transition: 0.4s;
+        }
+
+        .button:hover, .buttonMin:hover {
+            background-color: #fff;
+            color: #2158d6;
+            cursor: pointer;
+        }
+
         .topButton:hover {
             background-color: #fff; 
             color: #4CAF50; 
+            cursor: pointer;
         }
 
         .minimized {
@@ -65,7 +86,6 @@
             height: 40px;
             border: 1px solid blue;
             border-radius: 5px;
-
         }
 
         .minimized:hover {
@@ -97,10 +117,13 @@
             elm = null,
             elmToHide = null,
             iframe = null,
+            d = new Date();
             openPositions = [];
 
             document.body.style.height = innerHeight + 'px';
             document.getElementById('minimizedOnes').style.width = innerWidth + 'px';
+            document.getElementById('minimizeAll').innerHTML = `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
+
 
         function createNewDiv(inside){
             let divHead = 'divHead' + i,
