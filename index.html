@@ -7,6 +7,10 @@
     <title>Draggable DIV</title>
     <script src="https://kit.fontawesome.com/edb048d6f4.js" crossorigin="anonymous"></script>
     <style>
+        * {
+            user-select: none;
+        }
+
         body{
             background-color: #000000;
             color: #fff;
@@ -93,10 +97,27 @@
             color: #3980f4;
         }
 
+        .innerDiv {
+            background-color: #427fce;
+            padding: 10px;
+            display: flex;
+            position: relative;
+            user-select: none;
+        }
+
+        .active {
+            background-color: #ffffff;
+        }
+
+        #rect {
+            position: absolute;
+            background-color: rgba(0, 238, 255, 0.651);
+            border: 1px solid rgba(0, 238, 255);
+        }
 
     </style>
 </head>
-<body>
+<body class="body">
     
     <button class='topButton' onclick="createNewDiv('p')">Text</button>
     <button class='topButton' onclick="createNewDiv('video')">Video</button>
@@ -112,12 +133,15 @@
         let i = 0,
             z = 1,
             pressed = false,
+            drawRectangle = false;
             shiftX = 0,
             shiftY = 0,
+            startX = 0,
+            startY = 0,
             elm = null,
-            elmToHide = null,
+            setActive = null;
             iframe = null,
-            d = new Date();
+            d = new Date(),
             openPositions = [];
 
             document.body.style.height = innerHeight + 'px';
@@ -196,12 +220,6 @@
 
             document.body.appendChild(div);
 
-            document.getElementById(`innerDiv${i}`).style.backgroundColor = '#6878d8';
-            document.getElementById(`innerDiv${i}`).style.padding = 10 + 'px';
-            document.getElementById(`innerDiv${i}`).style.display = 'flex';
-            document.getElementById(`innerDiv${i}`).style.position = 'relative';
-            document.getElementById(`innerDiv${i}`).style.userSelect = 'none';
-
             document.getElementById(`button${i}`).style.position = 'absolute';
             document.getElementById(`button${i}`).style.right= 10 +'px';
             document.getElementById(`buttonMin${i}`).style.position = 'absolute';
@@ -274,13 +292,20 @@
         function move(e, x, y){
                 e.style.top = y - shiftY + 'px';
                 e.style.left = x - shiftX + 'px';
+                for(let i = 0; i < openPositions.length; i++){
+                    if(e === openPositions[i].item){
+                        openPositions[i].x = e.style.left;
+                        openPositions[i].x = parseInt(openPositions[i].x.substring(0, openPositions[i].x.length - 2));
+                        openPositions[i].y = e.style.top;
+                        openPositions[i].y = parseInt(openPositions[i].y.substring(0, openPositions[i].y.length - 2));
+                    }
+                }
         }
 
         document.addEventListener('mousedown', function(){
             if(event.button === 0){
                 switch(event.target.className){
                     case 'button':
-                        elm = event.target.parentNode.parentNode; 
                         event.target.parentNode.parentNode.remove();
                         break;
                     case 'removableDiv':
@@ -292,20 +317,40 @@
                         event.target.parentNode.style.zIndex = z;
                         break;
                     case 'innerDiv':
-                        elm = event.target.parentNode; 
+                        elm = event.target.parentNode;
+                        setActive = event.target;
+                        setActiveClass(setActive);
                         down(elm);
                         break;
                     case 'buttonMin':
-                        elmToHide = event.target.parentNode.parentNode;                                                 
                         addMinimize(event.target.parentNode.parentNode.getAttribute('index'), event.target.parentNode.parentNode.getAttribute('content'));
                         minimizedIcon(event.target.parentNode.parentNode.getAttribute('index'));
                         break;
                     case 'minimized':
                         maximize(event.target.getAttribute('index'));
                         break;
+                    case 'body':
+                        drawRectangle = true;
+                        setDrawStart(event.clientX, event.clientY)
+                        break;
                 }
             }
         });
+
+        function setDrawStart(x, y){
+            startX = x;
+            startY = y;
+            let div = document.createElement('div');
+            div.className = 'rectangle';
+            div.id = 'rect'
+            document.body.appendChild(div);
+            document.getElementById('rect').style.top = y + 'px';
+            document.getElementById('rect').style.left = x + 'px';
+        }
+
+        function setActiveClass(elm){
+            elm.classList.add('active');
+        }
 
         function minimizedIcon(index) {
             for(let i = 0; i < openPositions.length; i++){
@@ -353,10 +398,8 @@
         function minimizeAll(){
             for (let i = 0; i < openPositions.length; i++){
                 if(openPositions[i].minimizedElm){
-                    for(let i = 0; i < openPositions.length; i++){
                         openPositions[i].minimizedElm.style.display = 'block';
                         openPositions[i].item.style.display = 'none';
-                    }
                 } else if(!openPositions[i].minimizedElm){
                     let divMin = 'div' + i;
                     divMin = document.createElement('div');
@@ -401,12 +444,76 @@
         document.addEventListener('mousemove', function(){
             if (pressed){
                 move(elm, event.clientX, event.clientY)
+            } else if (drawRectangle) {
+                draw(event.clientX, event.clientY);
             }
         })
 
+        function draw(x, y){
+            if(drawRectangle){
+                let height = y - startY;
+                let width = x - startX;
+
+                if (height < 0 && width > 0) {
+                    document.getElementById('rect').style.top = y + 'px';
+                    document.getElementById('rect').style.height = Math.abs(startY - y) + 'px';
+                    document.getElementById('rect').style.width = Math.abs(startX - x) + 'px';
+                } else if (height > 0 && width < 0) {
+                    document.getElementById('rect').style.left = x + 'px';
+                    document.getElementById('rect').style.height = Math.abs(startY - y) + 'px';
+                    document.getElementById('rect').style.width = Math.abs(startX - x) + 'px';
+                } else if (height < 0 && width < 0) {
+                    document.getElementById('rect').style.top = y + 'px';
+                    document.getElementById('rect').style.left = x + 'px';
+                    document.getElementById('rect').style.width = Math.abs(startX - x) + 'px';
+                    document.getElementById('rect').style.height = Math.abs(startY - y) + 'px';
+                } else {
+                    document.getElementById('rect').style.top = startY + 'px';
+                    document.getElementById('rect').style.left = startX + 'px';
+                    document.getElementById('rect').style.width = Math.abs(width) + 'px';
+                    document.getElementById('rect').style.height = Math.abs(height) + 'px';
+                }
+            }
+            
+
+
+        }
+
         document.addEventListener('mouseup', function(){
             pressed = false;
+            // if(elm) {
+            //     setActive.classList.remove('active')
+            // };
+            if(drawRectangle) {
+                selectArea(document.getElementById('rect').getBoundingClientRect());
+                document.getElementById('rect').remove();
+                drawRectangle = false;
+            }
         })
+
+        function selectArea (x){
+            for(let i = 0; i < openPositions.length; i++){
+                // console.log(openPositions[i])
+                if (x.x < openPositions[i].x
+                    &&
+                    x.x + x.width> openPositions[i].x
+                    &&
+                    x.y < openPositions[i].y
+                    &&
+                    x.y + x.top > openPositions[i].y) {
+                        console.log(openPositions[i].item)
+                        openPositions[i].item.classList.add('active')
+                    }
+                    // console.log(openPositions[i].item.style.left)
+                    // console.log(x.y)
+                    // console.log(openPositions[i].item.style.top)
+                    // console.log(x.y + x.width)
+
+            }
+                    console.log(x.x)
+                    console.log(x.x + x.width)
+
+        }
 
         function display(){
             for(let i = 0; i < openPositions.length; i++) {
