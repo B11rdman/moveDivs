@@ -49,7 +49,7 @@
         cursor: pointer;
       }
 
-      .topButton {
+      button {
         background-color: #4caf50;
         border: none;
         color: white;
@@ -126,55 +126,65 @@
     </style>
   </head>
   <body class="body">
-    <button class="topButton" onclick="createNewDiv('p')">Text</button>
-    <button class="topButton" onclick="createNewDiv('video')">Video</button>
-    <button class="topButton" onclick="createNewDiv('image')">Image</button>
-    <button class="topButton" onclick="createNewDiv('website')">Website</button>
-
+    <button class="textButton">
+      Text
+    </button>
+    <button class="videoButton">
+      Video
+    </button>
+    <button class="imageButton">
+      Image
+    </button>
+    <button class="webButton">
+      Website
+    </button>
     <div id="minimizedOnes">
-      <div id="start" onclick="display()"></div>
-      <div id="minimizeAll" onclick="minimizeAll()"></div>
+      <div id="start" class="displayButton"></div>
+      <div id="minimizeAll" class="minimizeButton"></div>
     </div>
 
     <script>
-      let i = 0,
-        z = 1,
-        pressed = false,
-        drawRectangle = false,
-        moveSelectedArea = false,
-        shiftX = 0,
-        shiftY = 0,
-        startX = 0,
-        startY = 0,
-        selectedX = 0,
-        selectedY = 0,
+      let i = 0, // i for index
+        z = 1, //z for z-index
+        pressed = false, //checking if the mouse is pressed
+        drawRectangle = false, //checking if it's drawing a rectangle
+        moveSelectedArea = false, // checking if it's moving selected items
+        // SOME OF THESE THINGS ARE NOT GOING TO MAKE ANY SENSE NOW< BUT KEEP GOING!!!!
+
+        shiftX = 0, // variable
+        shiftY = 0, // variable
+        startX = 0, // variable
+        startY = 0, // variable
+        selectedX = 0, // variable
+        selectedY = 0, // variable
         elm = null,
         setActive = null,
         iframe = null,
-        d = new Date(),
-        activeOnes = [],
-        inArea = [],
+        d = new Date(), // to put the date in the right corner
+        activeOnes = [], // array for elements with 'active' class
+        inArea = [], // if the element is in the selected area, it's being added to this array
         readyToMove = [],
-        openPositions = [];
+        madeElements = []; //array which contains all the made elements, and more things for them
 
-      document.body.style.height = innerHeight + "px";
+      document.body.style.height = innerHeight + "px"; //setting body height
       document.getElementById("minimizedOnes").style.width = innerWidth + "px";
-      document.getElementById(
-        "minimizeAll"
-      ).innerHTML = `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
+      document.getElementById("minimizeAll").innerHTML = `${d.getDate()}.${
+        d.getMonth() + 1
+      }.${d.getFullYear()}`; //putting the date in the corner
 
       //creates new Div depending on content
       function createNewDiv(inside) {
-        let divHead = "divHead" + i,
-          buttonClose = "button" + i,
-          buttonMin = "min" + i,
-          div = "div" + i,
-          openPosition = {};
+        let divHead = "divHead" + i, //for top part of the created element
+          buttonClose = "button" + i, //close button
+          buttonMin = "min" + i, //minimize button
+          div = "div" + i, //whole div
+          openPosition = {}; //object, that has the info about the created element
 
-        openPosition.index = i;
+        openPosition.index = i; //giving the i as a property for 'index' key
 
-        openPositions.push(openPosition);
+        madeElements.push(openPosition); //and of course, it goes into this array
 
+        //styling below, no comments
         divHead = document.createElement("div");
         divHead.id = `innerDiv${i}`;
         divHead.className = "innerDiv";
@@ -196,7 +206,11 @@
 
         div.appendChild(divHead);
 
-        switch (inside) {
+        // now, the content of the element is decided by the attribute, that the function gets
+
+        switch (
+          inside //'inside' is the attribute, that function gets, you can check it above, in html
+        ) {
           case "p":
             let p = "p" + i;
             p = document.createElement("p");
@@ -237,7 +251,7 @@
         }
 
         document.body.appendChild(div);
-
+        //AGAIN STYLING
         document.getElementById(`button${i}`).style.position = "absolute";
         document.getElementById(`button${i}`).style.right = 10 + "px";
         document.getElementById(`buttonMin${i}`).style.position = "absolute";
@@ -253,15 +267,15 @@
 
         document.getElementById(`div${i}`).setAttribute("index", i);
 
-        document.getElementById(`div${i}`).style.top =
-          openPositions[i].y + "px";
+        document.getElementById(`div${i}`).style.top = madeElements[i].y + "px";
         document.getElementById(`div${i}`).style.left =
-          openPositions[i].x + "px";
+          madeElements[i].x + "px";
 
         document.getElementById(`div${i}`).style.backgroundColor = "#4288e6";
         document.getElementById(`div${i}`).style.borderRadius = 10 + "px";
         document.getElementById(`div${i}`).style.width = 200 + "px";
 
+        //again, styling depending on content
         switch (inside) {
           case "p":
             document.getElementById(
@@ -273,9 +287,9 @@
             openPosition.y =
               Math.floor(Math.random() * (innerHeight - 200)) + 50;
             document.getElementById(`div${i}`).style.top =
-              openPositions[i].y + "px";
+              madeElements[i].y + "px";
             document.getElementById(`div${i}`).style.left =
-              openPositions[i].x + "px";
+              madeElements[i].x + "px";
             break;
           case "website":
             document.getElementById(`div${i}`).style.width = 450 + "px";
@@ -284,18 +298,18 @@
             openPosition.y =
               Math.floor(Math.random() * (innerHeight - 380)) + 50;
             document.getElementById(`div${i}`).style.top =
-              openPositions[i].y + "px";
+              madeElements[i].y + "px";
             document.getElementById(`div${i}`).style.left =
-              openPositions[i].x + "px";
+              madeElements[i].x + "px";
             break;
           case "image":
             openPosition.x = Math.floor(Math.random() * (innerWidth - 200));
             openPosition.y =
               Math.floor(Math.random() * (innerHeight - 330)) + 50;
             document.getElementById(`div${i}`).style.top =
-              openPositions[i].y + "px";
+              madeElements[i].y + "px";
             document.getElementById(`div${i}`).style.left =
-              openPositions[i].x + "px";
+              madeElements[i].x + "px";
             document.getElementById(`div${i}`).setAttribute("content", inside);
             break;
           case "video":
@@ -303,23 +317,35 @@
             openPosition.y =
               Math.floor(Math.random() * (innerHeight - 230)) + 50;
             document.getElementById(`div${i}`).style.top =
-              openPositions[i].y + "px";
+              madeElements[i].y + "px";
             document.getElementById(`div${i}`).style.left =
-              openPositions[i].x + "px";
+              madeElements[i].x + "px";
             document.getElementById(`div${i}`).setAttribute("content", inside);
             break;
         }
-
-        openPositions[i].item = document.getElementById(`div${i}`);
+        //then, for 'item' key, it gets the element, as property
+        madeElements[i].item = document.getElementById(`div${i}`);
         i++;
+        /* 
+        now, that array looks like this
+        [{ index: 0,
+            item: document.getElementById(`div${i}`)..
+            x: (random X position)
+            y: (random Y position)
+        };
+        and elements like this
+        ]
+       */
+        //take of the comment below, to check it
+        // console.log(madeElements);
       }
 
-      //sets position and zIndex when clicked on element
+      //sets position on the element and zIndex when clicked on element
       function downOnOpenElement(e) {
         shiftX = event.clientX - e.getBoundingClientRect().left;
         shiftY = event.clientY - e.getBoundingClientRect().top;
-        pressed = true;
-        z++;
+        pressed = true; //sets, that it's pressed
+        z++; //and brings it to front
         e.style.zIndex = z;
       }
 
@@ -327,15 +353,15 @@
       function move(e, x, y) {
         e.style.top = y - shiftY + "px";
         e.style.left = x - shiftX + "px";
-        for (let i = 0; i < openPositions.length; i++) {
-          if (e === openPositions[i].item) {
-            openPositions[i].x = e.style.left;
-            openPositions[i].x = parseInt(
-              openPositions[i].x.substring(0, openPositions[i].x.length - 2)
-            );
-            openPositions[i].y = e.style.top;
-            openPositions[i].y = parseInt(
-              openPositions[i].y.substring(0, openPositions[i].y.length - 2)
+        for (let i = 0; i < madeElements.length; i++) {
+          if (e === madeElements[i].item) {
+            madeElements[i].x = e.style.left;
+            madeElements[i].x = parseInt(
+              madeElements[i].x.substring(0, madeElements[i].x.length - 2)
+            ); //this was math calculation, nothing scary
+            madeElements[i].y = e.style.top;
+            madeElements[i].y = parseInt(
+              madeElements[i].y.substring(0, madeElements[i].y.length - 2)
             );
           }
         }
@@ -348,30 +374,30 @@
 
       //displays all the minimized elements
       function display() {
-        for (let i = 0; i < openPositions.length; i++) {
-          openPositions[i].item.style.display = "block";
-          if (openPositions[i].minimizedElm) {
-            openPositions[i].minimizedElm.style.display = "none";
+        for (let i = 0; i < madeElements.length; i++) {
+          madeElements[i].item.style.display = "block";
+          if (madeElements[i].minimizedElm) {
+            madeElements[i].minimizedElm.style.display = "none";
           }
         }
       }
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      //Shows minimized block
-      function minimizedIcon(index) {
-        for (let i = 0; i < openPositions.length; i++) {
-          if (openPositions[i].item.getAttribute("index") === index) {
-            openPositions[i].minimizedElm.style.display = "block";
-            openPositions[i].item.style.display = "none";
-          }
-        }
-      }
+      //LOOK, I don't have the minimized elements at the beginning, I add them, whenever I need them
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       //adds minimized block
       function addMinimize(index, icon) {
-        for (let i = 0; i < openPositions.length; i++) {
-          if (i === parseInt(index) && openPositions[i].minimizedElm) {
-            minimizedIcon(index);
-          } else if (i === parseInt(index) && !openPositions[i].minimizedElm) {
+        for (let i = 0; i < madeElements.length; i++) {
+          if (i === parseInt(index) && madeElements[i].minimizedElm) {
+            minimizedIcon(index); //if it has minimized element ready, it does another function
+          } else if (i === parseInt(index) && !madeElements[i].minimizedElm) {
+            //if not, it creates that element
             let divMin = "div" + index;
             divMin = document.createElement("div");
             divMin.id = `minimized${index}`;
@@ -383,7 +409,7 @@
               .setAttribute("index", index);
             document.getElementById(`minimized${index}`).style.userSelect =
               "none";
-
+            //again, depending on content
             switch (icon) {
               case "p":
                 document.getElementById(`minimized${index}`).innerHTML =
@@ -402,20 +428,31 @@
                   '<i class="fas fa-pager"></i>' + index;
                 break;
             }
-            openPositions[index].minimizedElm = document.getElementById(
+            //and adds it as a property, for the array of made elements
+            madeElements[index].minimizedElm = document.getElementById(
               `minimized${index}`
             );
           }
         }
       }
 
-      //minimizes all
+      //Shows minimized block, if the minimized block is created, it shows it at the buttom
+      function minimizedIcon(index) {
+        for (let i = 0; i < madeElements.length; i++) {
+          if (madeElements[i].item.getAttribute("index") === index) {
+            madeElements[i].minimizedElm.style.display = "block";
+            madeElements[i].item.style.display = "none";
+          }
+        }
+      }
+
+      //minimizes all, AGAIN, it looks if minimized block exists or not, I could write a better code, but i'm lazy
       function minimizeAll() {
-        for (let i = 0; i < openPositions.length; i++) {
-          if (openPositions[i].minimizedElm) {
-            openPositions[i].minimizedElm.style.display = "block";
-            openPositions[i].item.style.display = "none";
-          } else if (!openPositions[i].minimizedElm) {
+        for (let i = 0; i < madeElements.length; i++) {
+          if (madeElements[i].minimizedElm) {
+            madeElements[i].minimizedElm.style.display = "block";
+            madeElements[i].item.style.display = "none";
+          } else if (!madeElements[i].minimizedElm) {
             let divMin = "div" + i;
             divMin = document.createElement("div");
             divMin.id = `minimized${i}`;
@@ -425,7 +462,7 @@
             document.getElementById(`minimized${i}`).setAttribute("index", i);
             document.getElementById(`minimized${i}`).style.userSelect = "none";
 
-            switch (openPositions[i].item.getAttribute("content")) {
+            switch (madeElements[i].item.getAttribute("content")) {
               case "p":
                 document.getElementById(`minimized${i}`).innerHTML =
                   '<i class="fas fa-file-alt"></i>' + i;
@@ -443,35 +480,56 @@
                   '<i class="fas fa-pager"></i>' + i;
                 break;
             }
-            openPositions[i].minimizedElm = document.getElementById(
+            madeElements[i].minimizedElm = document.getElementById(
               `minimized${i}`
             );
-            openPositions[i].item.style.display = "none";
+            madeElements[i].item.style.display = "none";
           }
         }
       }
 
       //maximizes clicked block
       function maximize(index) {
-        for (let i = 0; i < openPositions.length; i++) {
-          if (openPositions[i].item.getAttribute("index") === index) {
-            openPositions[i].minimizedElm.style.display = "none";
-            openPositions[i].item.style.display = "block";
+        for (let i = 0; i < madeElements.length; i++) {
+          if (madeElements[i].item.getAttribute("index") === index) {
+            madeElements[i].minimizedElm.style.display = "none";
+            madeElements[i].item.style.display = "block";
             z++;
-            openPositions[i].item.style.zIndex = z;
+            madeElements[i].item.style.zIndex = z;
           }
         }
       }
 
-      document.addEventListener("mousedown", function() {
+      //here we go with the global click event
+      document.addEventListener("mousedown", function () {
         if (event.button === 0) {
           if (event.target.className != "selectedArea") {
+            //look, when i select some elements, an invisible area is made, with class 'selectedArea'
+            //if it's clicked out of that selected area, it unselects the selected elements
             readyToMove = [];
             _emptyInArea();
           }
           switch (event.target.className) {
             case "button":
               event.target.parentNode.parentNode.remove();
+              break;
+            case "textButton":
+              createNewDiv("p");
+              break;
+            case "imageButton":
+              createNewDiv("image");
+              break;
+            case "webButton":
+              createNewDiv("website");
+              break;
+            case "videoButton":
+              createNewDiv("video");
+              break;
+            case "displayButton":
+              display();
+              break;
+            case "minimizeButton":
+              createNewDiv("p");
               break;
             case "removableDiv":
               z++;
@@ -489,34 +547,37 @@
               break;
             case "buttonMin":
               addMinimize(
+                //i described this function
                 event.target.parentNode.parentNode.getAttribute("index"),
                 event.target.parentNode.parentNode.getAttribute("content")
               );
               minimizedIcon(
+                //i described this function
                 event.target.parentNode.parentNode.getAttribute("index")
               );
               break;
             case "minimized":
-              maximize(event.target.getAttribute("index"));
+              maximize(event.target.getAttribute("index")); //i described this function
               break;
             case "body":
               drawRectangle = true;
-              setDrawStart(event.clientX, event.clientY);
+              setDrawStart(event.clientX, event.clientY); //if it's clicked on the body, it may start to draw an rectangle
               break;
             case "selectedArea":
               moveSelectedArea = true;
-              startToMoveSelectedItems(document.getElementById("selectedArea"));
+              startToMoveSelectedItems(document.getElementById("selectedArea")); //this one moves the selected area, with selected elements
               break;
           }
         }
       });
 
-      document.addEventListener("mousemove", function() {
+      document.addEventListener("mousemove", function () {
         if (pressed) {
-          move(elm, event.clientX, event.clientY);
+          move(elm, event.clientX, event.clientY); //this one moves only one selected element
         } else if (drawRectangle) {
-          draw(event.clientX, event.clientY);
+          draw(event.clientX, event.clientY); //this one draws rectangle
         } else if (moveSelectedArea) {
+          //this one moves selected elements
           moveSelectedItems(
             document.getElementById("selectedArea"),
             event.clientX,
@@ -525,7 +586,7 @@
         }
       });
 
-      document.addEventListener("mouseup", function() {
+      document.addEventListener("mouseup", function () {
         pressed = false;
         moveSelectedArea = false;
         if (drawRectangle) {
@@ -540,6 +601,7 @@
         }
       });
 
+      //sets the basic things for drawing rectangle, like position, id, ...
       function setDrawStart(x, y) {
         startX = x;
         startY = y;
@@ -551,8 +613,10 @@
         document.getElementById("rect").style.left = x + "px";
       }
 
+      //this one draws rectangle
       function draw(x, y) {
         if (drawRectangle) {
+          //i'm checking the mouse movement,
           let height = y - startY;
           let width = x - startX;
 
@@ -585,10 +649,12 @@
           }
           document.getElementById("rect").style.zIndex = z;
         }
-        _emptyInArea();
+        //then i'm trying to find if there are elements, which are inside the drawn rectangle
+        _emptyInArea(); //if there were some elements, selected before, they are being unselected
         selectArea(document.getElementById("rect").getBoundingClientRect());
       }
 
+      //unselecting previously selected elements
       function _emptyInArea() {
         for (let i = 0; i < inArea.length; i++) {
           inArea[i].classList.remove("inArea");
@@ -596,25 +662,22 @@
         inArea = [];
       }
 
+      //selecting new elements
       function selectArea(x) {
-        console.log(x);
-        console.log(x.x);
-        console.log(x.width);
-        console.log(x.y);
-        console.log(x.top);
-        for (let i = 0; i < openPositions.length; i++) {
+        for (let i = 0; i < madeElements.length; i++) {
           if (
-            x.x < openPositions[i].x &&
-            x.x + x.width > openPositions[i].x &&
-            x.y < openPositions[i].y &&
-            x.y + x.height > openPositions[i].y
+            x.x < madeElements[i].x &&
+            x.x + x.width > madeElements[i].x &&
+            x.y < madeElements[i].y &&
+            x.y + x.height > madeElements[i].y
           ) {
-            openPositions[i].item.firstChild.classList.add("inArea");
+            madeElements[i].item.firstChild.classList.add("inArea");
           }
           inArea = document.querySelectorAll(".inArea");
         }
       }
 
+      //defines the position, width and height of the 'selectedArea'
       function _makeSelectedArea() {
         let topPoint = 0,
           bottomPoint = 0,
@@ -623,9 +686,6 @@
         for (let i = 0; i < inArea.length; i++) {
           let left = inArea[i].parentNode.getBoundingClientRect().left;
           let top = inArea[i].parentNode.getBoundingClientRect().top;
-          console.log(inArea[i]);
-          console.log(top);
-          console.log(left);
 
           if (i == 0) {
             topPoint = top;
@@ -642,12 +702,10 @@
           ) {
             bottomPoint =
               top + inArea[i].parentNode.getBoundingClientRect().height;
-            console.log(bottomPoint);
           }
           //
           if (top < topPoint) {
             topPoint = top;
-            console.log(topPoint);
           }
           //
           if (
@@ -656,19 +714,16 @@
           ) {
             rightPoint =
               left + inArea[i].parentNode.getBoundingClientRect().width;
-            console.log(rightPoint);
           }
           //
           if (left < leftPoint) {
             leftPoint = left;
-            console.log(leftPoint);
           }
         }
         createGroupBox(topPoint, bottomPoint, leftPoint, rightPoint);
-        // console.log(topPoint);
-        // console.log(bottomPoint);
       }
 
+      //draws the 'selectedArea'
       function createGroupBox(top, bottom, left, right) {
         let div = document.createElement("div");
         div.id = "selectedArea";
@@ -684,6 +739,7 @@
         document.getElementById("selectedArea").style.backgroundColor =
           "rgba(255, 255, 255, 0)";
 
+        //defines the position of elements, inside the 'selectedArea'
         for (let i = 0; i < inArea.length; i++) {
           let selectedItems = {};
           selectedItems.item = inArea[i].parentNode;
@@ -693,16 +749,17 @@
           selectedItems.leftDifference = Math.abs(
             left - inArea[i].parentNode.getBoundingClientRect().left
           );
-          readyToMove.push(selectedItems);
+          readyToMove.push(selectedItems); //and makes an array, with their properties
         }
-        console.log(readyToMove);
       }
 
+      //defines the position of the mouse on the 'selectedArea'
       function startToMoveSelectedItems(elm) {
         selectedX = event.clientX - elm.getBoundingClientRect().left;
         selectedY = event.clientY - elm.getBoundingClientRect().top;
       }
 
+      //them moves it around, and all the selected elements
       function moveSelectedItems(e, x, y) {
         e.style.top = y - selectedY + "px";
         e.style.left = x - selectedX + "px";
