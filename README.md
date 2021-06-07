@@ -1,1 +1,1 @@
-# moveDivs
+# WinXP simulation
